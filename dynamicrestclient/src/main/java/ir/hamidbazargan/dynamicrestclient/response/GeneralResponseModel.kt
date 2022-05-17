@@ -1,0 +1,3 @@
+package ir.hamidbazargan.dynamicrestclient.response
+
+abstract class GeneralResponseModel
