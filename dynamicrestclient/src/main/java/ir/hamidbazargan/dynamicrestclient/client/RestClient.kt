@@ -6,18 +6,27 @@ import com.ihsanbal.logging.Level
 import com.ihsanbal.logging.LoggingInterceptor
 import okhttp3.*
 import okhttp3.internal.platform.Platform
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 internal class RestClient {
 
-    fun createRetrofitClient(httpClient: OkHttpClient, baseUrl: String): Retrofit {
-        val retrofitBuilder = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create(provideGson()))
-        return retrofitBuilder.build()
+    fun createRetrofitClient(
+        httpClient: OkHttpClient,
+        baseUrl: String,
+        converterFactories: List<Converter.Factory>? = null
+    ): Retrofit {
+        return Retrofit.Builder().apply {
+            baseUrl(baseUrl)
+            client(httpClient)
+            converterFactories?.forEach { factory ->
+                addConverterFactory(factory)
+            } ?: run {
+                addConverterFactory(GsonConverterFactory.create(provideGson()))
+            }
+        }.build()
     }
 
     fun getOkHttp(
@@ -28,14 +37,14 @@ internal class RestClient {
     ): OkHttpClient {
         val httpClientBuilder = OkHttpClient.Builder()
         if (debugMode) {
-            LoggingInterceptor.Builder()
-                .setLevel(Level.BASIC)
-                .log(Platform.INFO)
-                .request(TAG)
-                .response(TAG)
-                .build().also {
-                    httpClientBuilder.addInterceptor(it)
-                }
+            LoggingInterceptor.Builder().apply {
+                setLevel(Level.BASIC)
+                log(Platform.INFO)
+                request(TAG)
+                response(TAG)
+            }.build().also {
+                httpClientBuilder.addInterceptor(it)
+            }
         }
         interceptors?.let {
             for (interceptor in interceptors) {

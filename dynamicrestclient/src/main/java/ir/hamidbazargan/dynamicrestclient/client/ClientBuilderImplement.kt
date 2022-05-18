@@ -3,6 +3,7 @@ package ir.hamidbazargan.dynamicrestclient.client
 import okhttp3.Authenticator
 import okhttp3.Cache
 import okhttp3.Interceptor
+import retrofit2.Converter
 import java.util.ArrayList
 
 internal class ClientBuilderImplement : ClientBuilder {
@@ -10,6 +11,8 @@ internal class ClientBuilderImplement : ClientBuilder {
     private var authenticator: Authenticator? = null
 
     private var interceptors: MutableList<Interceptor> = ArrayList()
+
+    private var converterFactories: MutableList<Converter.Factory> = ArrayList()
 
     private var debugMode = false
 
@@ -30,6 +33,17 @@ internal class ClientBuilderImplement : ClientBuilder {
         return this.apply { interceptors.add(interceptor) }
     }
 
+    override fun withConverterFactories(converterFactories: List<Converter.Factory>): ClientBuilderImplement {
+        return this.apply {
+            for (converterFactory in converterFactories)
+                this.converterFactories.add(converterFactory)
+        }
+    }
+
+    override fun withConverterFactory(converterFactory: Converter.Factory): ClientBuilderImplement {
+        return this.apply { converterFactories.add(converterFactory) }
+    }
+
     override fun withDebugMode(debugMode: Boolean): ClientBuilderImplement {
         return this.apply { this.debugMode = debugMode }
     }
@@ -42,6 +56,7 @@ internal class ClientBuilderImplement : ClientBuilder {
         return ClientImplement(
             authenticator,
             interceptors,
+            converterFactories,
             cache,
             debugMode
         )

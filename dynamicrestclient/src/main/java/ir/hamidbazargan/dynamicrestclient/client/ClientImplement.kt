@@ -4,11 +4,13 @@ import ir.hamidbazargan.dynamicrestclient.ApiInterface
 import ir.hamidbazargan.dynamicrestclient.base.BaseImplement
 import ir.hamidbazargan.dynamicrestclient.base.Base
 import okhttp3.*
+import retrofit2.Converter
 import kotlin.collections.HashMap
 
 internal class ClientImplement(
     authenticator: Authenticator?,
     interceptors: List<Interceptor>,
+    private val converterFactories: List<Converter.Factory>,
     cache: Cache?,
     debugMode: Boolean
 ) : Client {
@@ -31,7 +33,8 @@ internal class ClientImplement(
     fun getRestClient(baseUrl: String): ApiInterface {
         return restInterface ?: restClient.createRetrofitClient(
             okHttpClient,
-            baseUrl
+            baseUrl,
+            converterFactories
         ).create(ApiInterface::class.java).also {
             restInterface = it
         }
