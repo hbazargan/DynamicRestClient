@@ -146,12 +146,14 @@ internal class RequestBuilderImplement<E : GeneralResponseModel>(
         customParser?.let { parser ->
             parser.parseData(response)?.also { data ->
                 return ResponseModel(
+                    response,
                     response.code(),
                     rawResponse,
                     data
                 )
             } ?: parser.parseData(rawResponse)?.also { data ->
                 return ResponseModel(
+                    response,
                     response.code(),
                     rawResponse,
                     data
@@ -164,6 +166,7 @@ internal class RequestBuilderImplement<E : GeneralResponseModel>(
                     responseModel
                 ).also { data ->
                     return ResponseModel(
+                        response,
                         response.code(),
                         rawResponse,
                         data
